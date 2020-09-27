@@ -9,13 +9,15 @@ if (isset($_POST["submit"])) {
         showFormPage();
         exit;
     }
+    $arData = prepareFormData($_POST);
 
-    if (!($arData = prepareFormData($_POST))) {
+    if (empty($arData)) {
         $messages[] = "При подготовке данных возникла ошибка.";
     }
 
+
     if ($messages) {
-        doLoginPage();
+        showFormPage();
         exit;
     }
 }
@@ -27,7 +29,8 @@ function showFormPage()
     global $pageTitle;
     @include_once 'core/header.php';
     ?>
-    <form id="new-anketa" class="form container" action="<?= $_SERVER["PHP_SELF"]; ?>" method="post">
+    <form id="new-anketa" class="form container" action="<?= $_SERVER["PHP_SELF"]; ?>" method="post"
+          enctype="multipart/form-data">
         <h2>Добавить анкету</h2>
         <?php
         if ($messages) {
@@ -159,7 +162,8 @@ function showFormPage()
                     </div>
                 </div>
                 <div class="form__input-file">
-                    <input class="visually-hidden" type="file" id="photo" name="IMAGES" value="">
+                    <input class="visually-hidden" type="file" id="photo" name="IMAGES" value="" size="5242880"
+                           accept=".png, .jpg, .jpeg" multiple>
                     <label for="photo">
                         <span>+ Загрузить</span>
                     </label>

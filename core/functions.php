@@ -158,14 +158,19 @@ function fieldValidator($field_descr, $field_data, $field_type, $min_length = ""
 function prepareFormData($data)
 {
     $preparedData = [];
+    if(isset($_FILES) && !empty($_FILES)){
+        //foreach ()
+    pars($_FILES);
+
+    }
     foreach ($data as $key => $item) {
-        //TODO: Сохранение множественных картинок
         switch ($key) {
             case "submit":
             case "SUBMIT":
                 continue;
             case "AVATAR":
-                $preparedData[$key] = base64_encode($item);
+                $preparedData[$key] = resizeImage($item, true);
+//                $preparedData[$key] = base64_encode($item);
                 continue;
             case "IMAGES":
                 continue;
@@ -175,18 +180,18 @@ function prepareFormData($data)
     }
     $count_col = 0;
     $preparedLength = count($preparedData);
-    $query = "INSERT INTO 'ankets' ";
+    $query = "INSERT INTO `ankets` ";
     $columns = "";
     $values = "VALUES ";
     foreach ($preparedData as $key => $item) {
         if ($count_col == 0) {
-            $columns .= "('" . $key . "', ";
+            $columns .= "(`" . $key . "`, ";
             $values .= "('" . $item . "', ";
         } elseif ($count_col === $preparedLength - 1) {
-            $columns .= "'" . $key . "') ";
+            $columns .= "`" . $key . "`) ";
             $values .= "'" . $item . "')";
         } else {
-            $columns .= "'" . $key . "', ";
+            $columns .= "`" . $key . "`, ";
             $values .= "'" . $item . "', ";
         }
         $count_col++;
@@ -197,7 +202,6 @@ function prepareFormData($data)
 
 function saveData($query = "")
 {
-    //TODO Проверить синтаксис
     global $link;
     if (!empty($query)) {
         $result = mysqli_query($link, $query)
@@ -225,4 +229,21 @@ function getImageById($image_id)
         return mysqli_fetch_array($result);
     }
     return false;
+}
+
+function resizeImage($file, $isavatar = false)
+{
+    if (class_exists("Imagick")) {
+        //Получаем данные
+        $image = new Imagick($file);
+        $width = $image->getImageWidth();
+        $height = $image->getImageHeight();
+        $newWidth = ($isavatar) ? 60 : 600;
+        $newHeight = ($isavatar) ? 60 : 700;
+        ($width > $height) ? $image->adaptiveResizeImage($newWidth, $newHeight) : $image->adaptiveResizeImage($newHeight, $newWidth);
+        pars($image);
+        //return base64_decode()
+    } else {
+        $messages[] = "Конфигурация сервера не позволят работать с изображенями";
+    }
 }
