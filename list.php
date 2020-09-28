@@ -6,6 +6,7 @@ $pageTitle = 'Список анкет';
 if (isset($_GET)) {
     $filterParams = [];
     $orderParams = [];
+    $paginatonParams = [];
     foreach ($_GET as $key => $param) {
         if (empty($param)) {
             continue;
@@ -14,9 +15,14 @@ if (isset($_GET)) {
             $orderParams[$key] = $param;
             continue;
         }
+        if ($key === 'PAGEN') {
+            $paginatonParams['LIMIT'] = 5;
+            $paginatonParams['OFFSET'] = $param;
+            continue;
+        }
         $filterParams[$key] = $param;
     }
-    $arResult = getList($filterParams, $orderParams);
+    $arResult = getList($filterParams, $orderParams, $paginatonParams);
 } else {
     $arResult = getList();
 }
@@ -122,18 +128,40 @@ function showListpage($arResult)
                     </li>
                 <? endforeach; ?>
             </ul>
-            <ul class="pagination-list">
-                <li class="pagination-item pagination-item-prev"><a>Назад</a></li>
-                <li class="pagination-item pagination-item-active"><a>1</a></li>
-                <li class="pagination-item"><a href="#">2</a></li>
-                <li class="pagination-item"><a href="#">3</a></li>
-                <li class="pagination-item"><a href="#">4</a></li>
-                <li class="pagination-item pagination-item-next"><a href="#">Вперед</a></li>
-            </ul>
+            <? showPagination($arResult) ?>
         </section>
 
     </div>
     <? @include_once "core/footer.php";
+}
+
+function showPagination($arResult)
+{
+    $defaultElementcounts = 5;
+    $count = countElements();
+    if (!empty($arResult)):?>
+        <ul class="pagination-list">
+            <?php
+            $index = 0;
+            $curpage = 1;
+            $totalPages = ceil($count / $defaultElementcounts);
+            if (isset($_GET)) {
+                $totalPages = ceil(count($arResult) / $defaultElementcounts);
+                if (isset($_GET['PAGEN']) && !empty($_GET['PAGEN'])) {
+                    $curpage = intval($_GET['PAGEN']);
+                }
+            }
+
+            while ($index < $totalPages):
+                ?>
+                <? $index++; ?>
+                <li class="pagination-item <?= ($index === $curpage) ? 'pagination-item-active' : ''; ?>"><a
+                            href="<?= $_SERVER['PHP_SELF'] . "?PAGEN=" . $index ?>"><?= $index ?></a>
+                </li>
+            <?php
+            endwhile; ?>
+        </ul>
+    <?endif;
 }
 
 ?>

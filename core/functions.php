@@ -65,11 +65,22 @@ function checkPass($login, $password)
     return false;
 }
 
-function getList($filterParams = [], $orderParams = [])
+function countElements()
+{
+    global $link;
+    $query = "SELECT COUNT(*) FROM ankets";
+    $result = mysqli_query($link, $query)
+    or die("getList fatal error: " . mysqli_error($link));
+    $row = mysqli_fetch_row($result);
+    return $row[0]; // всего записей
+}
+
+function getList($filterParams = [], $orderParams = [], $paginationParams = [])
 {
     global $link;
     $filterRow = "";
     $orderRow = "";
+    $paginationRow = "LIMIT 5 OFFSET 0";
     if (!empty($filterParams)) {
         $filterRow = "WHERE ";
         foreach ($filterParams as $key => $filterParam) {
@@ -79,11 +90,16 @@ function getList($filterParams = [], $orderParams = [])
             $filterRow .= "`{$key}`='" . $filterParam . "' ";
         }
     }
+
     if (!empty($orderParams)) {
         $orderRow = "ORDER BY `ankets` . `{$orderParams['SORTFIELD']}` {$orderParams['SORTBY']}";
     }
 
-    $query = "SELECT * FROM ankets $filterRow $orderRow";
+    if (!empty($paginationParams)) {
+        $paginationRow = "LIMIT {$paginationParams['LIMIT']} OFFSET {$paginationParams['OFFSET']}";
+    }
+    $query = "SELECT * FROM ankets $filterRow $orderRow $paginationRow";
+
     $result = mysqli_query($link, $query)
     or die("getList fatal error: " . mysqli_error($link));
     if (mysqli_num_rows($result) >= 1) {
