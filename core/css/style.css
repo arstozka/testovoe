@@ -197,6 +197,9 @@ h2 {
     .lots__list {
         grid-area: items;
     }
+    .lots__list .lot{
+        margin-bottom: 0;
+    }
 
     @media screen and (max-width: 600px) {
         .lots {

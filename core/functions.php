@@ -193,7 +193,7 @@ function prepareFormData($data)
     $preparedData = [];
     if (isset($_FILES) && !empty($_FILES)) {
         foreach ($_FILES as $file) {
-            resizeImage($file['tmp_name']);
+            resizeImage($file);
         }
 
     }
@@ -268,19 +268,44 @@ function getImageById($image_id)
 function resizeImage($file, $isavatar = false)
 {
     global $messages;
+    $newWidth = ($isavatar) ? 60 : 600;
+    $newHeight = ($isavatar) ? 60 : 700;
     if (class_exists("Imagick")) {
         //Получаем данные
         pars('exists');
         $image = new Imagick($file);
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();
-        $newWidth = ($isavatar) ? 60 : 600;
-        $newHeight = ($isavatar) ? 60 : 700;
         ($width > $height) ? $image->adaptiveResizeImage($newWidth, $newHeight) : $image->adaptiveResizeImage($newHeight, $newWidth);
-        pars($image);
         //return base64_decode()
     } else {
-        $messages[] = "Конфигурация сервера не позволят работать с изображенями";
-        return false;
+        $info = getimagesize($file['tmp_name']);
+        $width = $info[0];
+        $height = $info[1];
+        $type = $info['mime'];
+        switch ($type) {
+            case 'image/png':
+                $img = imagecreatefrompng($file['tmp_name']);
+                imagesavealpha($img, true);
+                break;
+            case 'image/jpeg':
+                $img = imagecreatefromjpeg($file['tmp_name']);
+                break;
+            default:
+                $messages[] = "неизвестный тип файла картинки";
+                return false;
+        }
+        $temp = imagecreatetruecolor($newWidth, $newHeight);
+        if ($type === 'image/png') {
+            imagealphablending($temp, true);
+            imageSaveAlpha($temp, true);
+            $transparent = imagecolorallocatealpha($temp, 0, 0, 0, 127);
+            imagefill($temp, 0, 0, $transparent);
+            imagecolortransparent($temp, $transparent);
+        }
+
+        pars($info);
+        pars($file);
+
     }
 }
