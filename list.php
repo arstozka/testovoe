@@ -69,7 +69,8 @@ function showListpage($arResult)
                     <div class="filter__row">
                         <div class="form__item">
                             <div class="form__input-checkbox">
-                                <input id="skill1" type="checkbox" name="USIDCHOVOST" value="Y">
+                                <input id="skill1" type="checkbox" name="USIDCHOVOST"
+                                       value="Y" <?= (isset($_GET['USIDCHOVOST'])) ? "checked" : ""; ?>>
                                 <label for="skill1" class="">
                                     Усидчивость
                                 </label>
@@ -77,7 +78,9 @@ function showListpage($arResult)
                         </div>
                         <div class="form__item">
                             <div class="form__input-checkbox">
-                                <input id="skill2" type="checkbox" name="OPRYATNOST" value="Y">
+                                <input id="skill2" type="checkbox" name="OPRYATNOST" value="Y"
+                                    <?= (isset($_GET['OPRYATNOST'])) ? "checked" : ""; ?>
+                                >
                                 <label for="skill2" class="">
                                     Опрятность
                                 </label>
@@ -85,7 +88,9 @@ function showListpage($arResult)
                         </div>
                         <div class="form__item">
                             <div class="form__input-checkbox">
-                                <input id="skill3" type="checkbox" name="SAMOOBUCHAEMOST" value="Y">
+                                <input id="skill3" type="checkbox" name="SAMOOBUCHAEMOST" value="Y"
+                                    <?= (isset($_GET['SAMOOBUCHAEMOST'])) ? "checked" : ""; ?>
+                                >
                                 <label for="skill3" class="">
                                     Самообучаемость
                                 </label>
@@ -93,7 +98,9 @@ function showListpage($arResult)
                         </div>
                         <div class="form__item">
                             <div class="form__input-checkbox">
-                                <input id="skill4" type="checkbox" name="TRUDOLUBIE" value="Y">
+                                <input id="skill4" type="checkbox" name="TRUDOLUBIE" value="Y"
+                                    <?= (isset($_GET['TRUDOLUBIE'])) ? "checked" : ""; ?>
+                                >
                                 <label for="skill4" class="">
                                     Трудолюбие
                                 </label>
@@ -145,6 +152,7 @@ function showPagination($arResult)
             $index = 0;
             $curpage = 1;
             $totalPages = ceil($count / $defaultElementcounts);
+
             if (isset($_GET)) {
                 $totalPages = ceil(count($arResult) / $defaultElementcounts);
                 if (isset($_GET['PAGEN']) && !empty($_GET['PAGEN'])) {
@@ -152,7 +160,7 @@ function showPagination($arResult)
                 }
             }
 
-            while ($index < $totalPages):
+            while ($index <= $totalPages):
                 ?>
                 <? $index++; ?>
                 <li class="pagination-item <?= ($index === $curpage) ? 'pagination-item-active' : ''; ?>"><a

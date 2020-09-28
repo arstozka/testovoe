@@ -70,7 +70,7 @@ function countElements()
     global $link;
     $query = "SELECT COUNT(*) FROM ankets";
     $result = mysqli_query($link, $query)
-    or die("getList fatal error: " . mysqli_error($link));
+    or die("countElements fatal error: " . mysqli_error($link));
     $row = mysqli_fetch_row($result);
     return $row[0]; // всего записей
 }
@@ -83,11 +83,19 @@ function getList($filterParams = [], $orderParams = [], $paginationParams = [])
     $paginationRow = "LIMIT 5 OFFSET 0";
     if (!empty($filterParams)) {
         $filterRow = "WHERE ";
+        $keys = array_keys($filterParams);
+
         foreach ($filterParams as $key => $filterParam) {
             if (empty($filterParam)) {
                 continue;
             }
-            $filterRow .= "`{$key}`='" . $filterParam . "' ";
+
+            if ($key == $keys[0]) {
+                $filterRow .= "`{$key}`='" . $filterParam . "' ";
+                continue;
+            }
+            $filterRow .= "AND `{$key}`='" . $filterParam . "' ";
+
         }
     }
 
@@ -98,6 +106,7 @@ function getList($filterParams = [], $orderParams = [], $paginationParams = [])
     if (!empty($paginationParams)) {
         $paginationRow = "LIMIT {$paginationParams['LIMIT']} OFFSET {$paginationParams['OFFSET']}";
     }
+
     $query = "SELECT * FROM ankets $filterRow $orderRow $paginationRow";
 
     $result = mysqli_query($link, $query)

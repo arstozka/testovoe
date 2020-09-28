@@ -334,6 +334,9 @@ h2 {
 .form {
     padding-top: 51px;
 }
+.form.form--filter{
+    padding-top: 0;
+}
 
 .form h2 {
     padding-bottom: 15px;

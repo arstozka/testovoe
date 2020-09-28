@@ -47,7 +47,7 @@ function doLoginPage()
             <div class="form__item ">
                 <label for="login">Логин*</label>
                 <input id="login" type="text" name="login" maxlength="15"
-                       value="<?php print isset($_POST["login"]) ? $_POST["login"] : ""; ?>">
+                       value="<?= isset($_POST["login"]) ? $_POST["login"] : ""; ?>">
             </div>
             <div class="form__item ">
                 <label for="password">Пароль*</label>
