@@ -11,11 +11,6 @@ if (isset($_POST["submit"])) {
     }
     $arData = prepareFormData($_POST);
 
-    if (empty($arData)) {
-        $messages[] = "При подготовке данных возникла ошибка.";
-    }
-
-
     if ($messages) {
         showFormPage();
         exit;

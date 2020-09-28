@@ -53,7 +53,6 @@ h2 {
     overflow: hidden;
     border: 0;
     clip: rect(0, 0, 0, 0);
-    -webkit-clip-path: inset(100%);
     clip-path: inset(100%);
 }
 
@@ -184,7 +183,7 @@ h2 {
         display: grid;
         grid-template-columns: max-content 1fr;
         grid-gap: 25px;
-        grid-template-areas: "header header" "filter items";
+        grid-template-areas: "header header" "filter items" "filter pagination";
     }
 
     .lots__header {
@@ -280,6 +279,7 @@ h2 {
 /* Пагинация */
 
 .pagination-list {
+    grid-area: pagination;
     display: flex;
     margin: 0 auto 15px;
     padding: 22px 20px;

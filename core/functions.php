@@ -65,17 +65,25 @@ function checkPass($login, $password)
     return false;
 }
 
-function getList($filterParams = [])
+function getList($filterParams = [], $orderParams = [])
 {
     global $link;
     $filterRow = "";
+    $orderRow = "";
     if (!empty($filterParams)) {
         $filterRow = "WHERE ";
         foreach ($filterParams as $key => $filterParam) {
-            $filterRow .= "{$key}=" . $filterParam;
+            if (empty($filterParam)) {
+                continue;
+            }
+            $filterRow .= "`{$key}`='" . $filterParam . "' ";
         }
     }
-    $query = "SELECT * FROM ankets $filterRow";
+    if (!empty($orderParams)) {
+        $orderRow = "ORDER BY `ankets` . `{$orderParams['SORTFIELD']}` {$orderParams['SORTBY']}";
+    }
+
+    $query = "SELECT * FROM ankets $filterRow $orderRow";
     $result = mysqli_query($link, $query)
     or die("getList fatal error: " . mysqli_error($link));
     if (mysqli_num_rows($result) >= 1) {
@@ -158,9 +166,10 @@ function fieldValidator($field_descr, $field_data, $field_type, $min_length = ""
 function prepareFormData($data)
 {
     $preparedData = [];
-    if(isset($_FILES) && !empty($_FILES)){
-        //foreach ()
-    pars($_FILES);
+    if (isset($_FILES) && !empty($_FILES)) {
+        foreach ($_FILES as $file) {
+            resizeImage($file['tmp_name']);
+        }
 
     }
     foreach ($data as $key => $item) {
@@ -233,8 +242,10 @@ function getImageById($image_id)
 
 function resizeImage($file, $isavatar = false)
 {
+    global $messages;
     if (class_exists("Imagick")) {
         //Получаем данные
+        pars('exists');
         $image = new Imagick($file);
         $width = $image->getImageWidth();
         $height = $image->getImageHeight();
@@ -245,5 +256,6 @@ function resizeImage($file, $isavatar = false)
         //return base64_decode()
     } else {
         $messages[] = "Конфигурация сервера не позволят работать с изображенями";
+        return false;
     }
 }

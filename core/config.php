@@ -17,10 +17,10 @@ $messages = [];
 
 // Данные для подключения к БД
 
-$dbhost = "127.0.0.1";
+$dbhost = "192.168.1.165";
 $dbuser = "root";
 $dbpass = "";
-$dbname = "axioma-gda";
+$dbname = "testovoe";
 
 //Вызовем функцию подключения к БД
 
