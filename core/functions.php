@@ -232,15 +232,17 @@ function prepareFormData($data)
     }
     $query .= $columns . $values;
     saveData($query);
+
+    //TODO: Сделать функцию которая сохраняет картинки и отдает id в таблицу связей.
 }
 
 function saveData($query = "")
 {
+    //TODO: Возвращать id записи
     global $link;
     if (!empty($query)) {
         $result = mysqli_query($link, $query)
         or die("saveData fatal error: " . mysqli_error($link));
-        header("Location success.php");
     }
     return false;
 }
@@ -270,42 +272,62 @@ function resizeImage($file, $isavatar = false)
     global $messages;
     $newWidth = ($isavatar) ? 60 : 600;
     $newHeight = ($isavatar) ? 60 : 700;
-    if (class_exists("Imagick")) {
-        //Получаем данные
-        pars('exists');
-        $image = new Imagick($file);
-        $width = $image->getImageWidth();
-        $height = $image->getImageHeight();
-        ($width > $height) ? $image->adaptiveResizeImage($newWidth, $newHeight) : $image->adaptiveResizeImage($newHeight, $newWidth);
-        //return base64_decode()
-    } else {
-        $info = getimagesize($file['tmp_name']);
-        $width = $info[0];
-        $height = $info[1];
-        $type = $info['mime'];
-        switch ($type) {
-            case 'image/png':
-                $img = imagecreatefrompng($file['tmp_name']);
-                imagesavealpha($img, true);
-                break;
-            case 'image/jpeg':
-                $img = imagecreatefromjpeg($file['tmp_name']);
-                break;
-            default:
-                $messages[] = "неизвестный тип файла картинки";
-                return false;
-        }
-        $temp = imagecreatetruecolor($newWidth, $newHeight);
-        if ($type === 'image/png') {
-            imagealphablending($temp, true);
-            imageSaveAlpha($temp, true);
-            $transparent = imagecolorallocatealpha($temp, 0, 0, 0, 127);
-            imagefill($temp, 0, 0, $transparent);
-            imagecolortransparent($temp, $transparent);
-        }
+    $info = getimagesize($file['tmp_name']);
+    $width = $info[0];
+    $height = $info[1];
+    $type = $info['mime'];
 
-        pars($info);
-        pars($file);
-
+    switch ($type) {
+        case 'image/png':
+            $img = imagecreatefrompng($file['tmp_name']);
+            imagesavealpha($img, true);
+            break;
+        case 'image/jpeg':
+            $img = imagecreatefromjpeg($file['tmp_name']);
+            break;
+        default:
+            $messages[] = "неизвестный тип файла картинки";
+            return false;
     }
+
+    $temp = imagecreatetruecolor($newWidth, $newHeight);
+    if ($type === 'image/png') {
+        imagealphablending($temp, true);
+        imageSaveAlpha($temp, true);
+        $transparent = imagecolorallocatealpha($temp, 0, 0, 0, 127);
+        imagefill($temp, 0, 0, $transparent);
+        imagecolortransparent($temp, $transparent);
+    }
+
+    $tw = ceil($newHeight / ($height / $width));
+    $th = ceil($newWidth / ($width / $height));
+    if ($tw < $newWidth) {
+        imageCopyResampled(
+            $temp,
+            $img,
+            ceil(($newWidth - $tw) / 2),
+            0,
+            0,
+            0,
+            $tw,
+            $newHeight,
+            $width,
+            $height
+        );
+    } else {
+        imageCopyResampled(
+            $temp,
+            $img,
+            0,
+            ceil(($newHeight - $th) / 2),
+            0,
+            0,
+            $newWidth,
+            $th,
+            $width,
+            $height
+        );
+    }
+
+    return $temp;
 }
