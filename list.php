@@ -17,7 +17,7 @@ if (isset($_GET)) {
         }
         if ($key === 'PAGEN') {
             $paginatonParams['LIMIT'] = 5;
-            $paginatonParams['OFFSET'] = $param;
+            $paginatonParams['OFFSET'] = 5 * ($param-1);
             continue;
         }
         $filterParams[$key] = $param;
@@ -154,13 +154,12 @@ function showPagination($arResult)
             $totalPages = ceil($count / $defaultElementcounts);
 
             if (isset($_GET)) {
-                $totalPages = ceil(count($arResult) / $defaultElementcounts);
                 if (isset($_GET['PAGEN']) && !empty($_GET['PAGEN'])) {
                     $curpage = intval($_GET['PAGEN']);
                 }
             }
 
-            while ($index <= $totalPages):
+            while ($index < $totalPages):
                 ?>
                 <? $index++; ?>
                 <li class="pagination-item <?= ($index === $curpage) ? 'pagination-item-active' : ''; ?>"><a
