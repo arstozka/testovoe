@@ -194,8 +194,9 @@ function prepareFormData($data)
     $images = [];
     if (isset($_FILES) && !empty($_FILES)) {
         foreach ($_FILES as $key => $file) {
-            $images[$key] = resizeImage($file, ($key === "AVATAR") ? "Y" : "");
-            resizeImage($file);
+            if(!empty($file['name'])) {
+                $images[$key] = resizeImage($file, ($key === "AVATAR") ? "Y" : "");
+            }
         }
 
     }
@@ -249,7 +250,7 @@ function prepareFormData($data)
 function saveImageIds($anketa_id, $image_id)
 {
     global $link;
-    $query = "INSERT INTO `ankets_images`(`anketa_id`, `image_id`) VALUES ('" . $anketa_id . "', '" . $image_id . "')";
+    $query = "INSERT INTO `ankets_images` (`anketa_id`, `image_id`) VALUES ('" . $anketa_id . "', '" . $image_id . "')";
     $result = mysqli_query($link, $query)
     or die("saveImageIds fatal error:" . mysqli_error($link));
 }
