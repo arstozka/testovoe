@@ -191,8 +191,10 @@ function fieldValidator($field_descr, $field_data, $field_type, $min_length = ""
 function prepareFormData($data)
 {
     $preparedData = [];
+    $images = [];
     if (isset($_FILES) && !empty($_FILES)) {
-        foreach ($_FILES as $file) {
+        foreach ($_FILES as $key => $file) {
+            $images[$key] = resizeImage($file, ($key === "AVATAR") ? "Y" : "");
             resizeImage($file);
         }
 
@@ -203,9 +205,6 @@ function prepareFormData($data)
             case "SUBMIT":
                 continue;
             case "AVATAR":
-                $preparedData[$key] = resizeImage($item, true);
-//                $preparedData[$key] = base64_encode($item);
-                continue;
             case "IMAGES":
                 continue;
             default:
@@ -231,20 +230,50 @@ function prepareFormData($data)
         $count_col++;
     }
     $query .= $columns . $values;
-    saveData($query);
+    $anketa_id = saveData($query);
 
-    //TODO: Сделать функцию которая сохраняет картинки и отдает id в таблицу связей.
+    foreach ($images as $key => $image) {
+        if ($key === "AVATAR") {
+            $image_ids[] = saveImage($image, "Y");
+        }
+        $image_ids[] = saveImage($image, "");
+    }
+    if (!empty($image_ids)) {
+        foreach ($image_ids as $image_id) {
+            saveImageIds($anketa_id, $image_id);
+        }
+    }
+
+}
+
+function saveImageIds($anketa_id, $image_id)
+{
+    global $link;
+    $query = "INSERT INTO `ankets_images`(`anketa_id`, `image_id`) VALUES ('" . $anketa_id . "', '" . $image_id . "')";
+    $result = mysqli_query($link, $query)
+    or die("saveImageIds fatal error:" . mysqli_error($link));
 }
 
 function saveData($query = "")
 {
-    //TODO: Возвращать id записи
     global $link;
     if (!empty($query)) {
         $result = mysqli_query($link, $query)
         or die("saveData fatal error: " . mysqli_error($link));
+        return mysqli_insert_id($link);
     }
     return false;
+}
+
+function saveImage($file, $is_avatar)
+{
+    global $link;
+
+    $query = "INSERT INTO `images` (`image`, `ISAVATAR`) VALUES ('" . $file . "','" . $is_avatar . "' )";
+
+    $result = mysqli_query($link, $query)
+    or die("saveImage fatal error: " . mysqli_error($link));
+    return mysqli_insert_id($link);
 }
 
 function pars($data)
